@@ -21,7 +21,18 @@ public class Bb implements Serializable {
      * Possible d'écrire un nouveau rôle dans la liste déroulante.
      */
     private String roleSysteme;
-    
+    private  boolean isDebug;
+
+    public boolean isDebug() {
+        return isDebug;
+    }
+
+    public void setDebug(boolean debug) {
+        isDebug = debug;
+    }
+    public void toggleDebug() {
+        this.setDebug(!isDebug());
+    }
     /**
      * Quand le rôle est choisi par l'utilisateur dans la liste déroulante,
      * il n'est plus possible de le modifier (voir code de la page JSF), sauf si on veut un nouveau chat.
