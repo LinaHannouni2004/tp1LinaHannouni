@@ -33,6 +33,11 @@ public class Bb implements Serializable {
     public void toggleDebug() {
         this.setDebug(!isDebug());
     }
+    private String texteRequeteJson;
+    private String texteReponseJson;
+
+    public String getTexteRequeteJson() { return texteRequeteJson; }
+    public String getTexteReponseJson() { return texteReponseJson; }
     /**
      * Quand le rôle est choisi par l'utilisateur dans la liste déroulante,
      * il n'est plus possible de le modifier (voir code de la page JSF), sauf si on veut un nouveau chat.
@@ -43,7 +48,10 @@ public class Bb implements Serializable {
      * Liste de tous les rôles de l'API prédéfinis.
      */
     private List<SelectItem> listeRolesSysteme;
-
+    @Inject
+    private LlmClientPourGemini llmClient;
+    @Inject
+    private JsonUtilPourGemini jsonUtil;
     /**
      * Dernière question posée par l'utilisateur.
      */
@@ -126,29 +134,30 @@ public class Bb implements Serializable {
             facesContext.addMessage(null, message);
             return null;
         }
-        // Entourer la réponse avec "||".
-        this.reponse = "||";
-        // Si la conversation n'a pas encore commencé, ajouter le rôle système au début de la réponse
-        if (this.conversation.isEmpty()) {
-            // Ajouter le rôle système au début de la réponse
-            this.reponse += roleSysteme.toUpperCase(Locale.FRENCH) + "\n";
-            // Invalide le bouton pour changer le rôle système
-            this.roleSystemeChangeable = false;
+
+        try {
+            jsonUtil.setSystemRole(roleSysteme);
+
+            LlmInteraction interaction = jsonUtil.envoyerRequete(question);
+            this.reponse = interaction.reponseExtraite();
+            this.texteRequeteJson = interaction.questionJson();
+            this.texteReponseJson = interaction.reponseJson();
+        } catch (Exception e) {
+            FacesMessage message =
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Problème de connexion avec l'API du LLM",
+                            "Problème de connexion avec l'API du LLM" + e.getMessage());
+            facesContext.addMessage(null, message);
         }
-        this.reponse += question.toLowerCase(Locale.FRENCH) + "||";
-        // La conversation contient l'historique des questions-réponses depuis le début.
-        if ("Analyseur de sentiments".equalsIgnoreCase(roleSysteme)) {
-            // Appel direct : la méthode mettra à jour this.reponse
-            analyserSentiment();
-        } else {
-            // Sinon : comportement normal (copie du texte)
-            this.reponse = "||" + roleSysteme.toUpperCase(Locale.FRENCH) + "\n" +
-                    question.toLowerCase(Locale.FRENCH) + "||";
-        }
+
+
+
 
 
         afficherConversation();
         return null;
+
+
     }
 
     /**
