@@ -33,6 +33,7 @@ public class LlmClientPourGemini implements Serializable {
         this.key = System.getenv("GEMINI_KEY");
 
 
+
         if (this.key == null || this.key.isEmpty()) {
             throw new IllegalStateException("❌ Variable d'environnement GEMINI_API_KEY non définie !");
         }

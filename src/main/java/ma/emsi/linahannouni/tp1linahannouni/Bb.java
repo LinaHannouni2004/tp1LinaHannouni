@@ -210,7 +210,17 @@ public class Bb implements Serializable {
             role = """
                     You analyse the sentiment of the user it can be positive ,negative or neutral.
                     """;
-            this.listeRolesSysteme.add(new SelectItem("Analyseur de sentiments", "Analyseur de sentiments"));
+            this.listeRolesSysteme.add(new SelectItem(role, "Analyseur de sentiments"));
+
+            role = """
+        You are a compassionate mental health assistant.
+        Your role is to help people who express sadness, hopelessness, or suicidal thoughts.
+        You listen carefully, reply with empathy and kindness, and encourage them to talk to someone they trust or a mental health professional.
+        You must NEVER give medical advice or judgment.
+        Always end your answers with a positive message of hope and remind the user that help is available.
+        Use a calm, warm, and reassuring tone.
+        """;
+            this.listeRolesSysteme.add(new SelectItem(role, "Conseiller bien-être "));
         }
 
         return this.listeRolesSysteme;
